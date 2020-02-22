@@ -35,6 +35,31 @@ Please follow the directions found in this helpful StackOverflow post: https://s
 
 ## Project Directions
 
+### Starter Code
+You can find three Python files that are starter code, the project dataset, and some other necessary resources in a zip file called "SF Crime Data Project Files" in the Resources tab in the left sidebar of your classroom:
+
+- `producer_server.py`
+- `kafka_server.py`
+- `data_stream.py`
+- `police-department-calls-for-service.json`
+- `radio_code.json`
+- `start.sh`
+- `requirements.txt`
+
+These files are also included in the Project Workspace.
+
+### Files You Need to Edit in Your Project Work
+These starter code files should be edited:
+
+- `producer_server.py`
+- `data_stream.py`
+- `kafka_server.py`
+
+The following file should be created separately for you to check if your kafka_server.py is working properly:
+
+- `consumer_server.py`
+
+
 ### Beginning the Project
 This project requires creating topics, starting Zookeeper and Kafka servers, and your Kafka bootstrap server. You’ll need to choose a port number (e.g., 9092, 9093..) for your Kafka topic, and come up with a Kafka topic name and modify the zookeeper.properties and server.properties appropriately.
 
