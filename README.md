@@ -120,11 +120,13 @@ spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.4 --maste
 ## Step 3
 Write the answers to these questions in the README.md doc of your GitHub repo:
 
-1. How did changing values on the SparkSession property parameters affect the throughput and latency of the data?
+**1. How did changing values on the SparkSession property parameters affect the throughput and latency of the data?**
 
-2. What were the 2-3 most efficient SparkSession property key/value pairs? Through testing multiple variations on values, how can you tell these were the most optimal?
+**2. What were the 2-3 most efficient SparkSession property key/value pairs? Through testing multiple variations on values, how can you tell these were the most optimal?**
 
 ## Project Submission
-You will submit a link to your GitHub repo, with the files you've created: producer_server.py, kafka_server.py, data_stream.py, and consumer_server.py. The README.md doc in your GitHub repo should contain your responses to the two questions from Step 3.
+You will submit a link to your GitHub repo, with the files you've created: producer_server.py, kafka_server.py, data_stream.py, and consumer_server.py. The README.md doc in your GitHub repo should contain **your responses to the two questions from Step 3**.
 
-Your project submission should also include a zip file containing the three screenshots you've taken.
+Your project submission should also include a zip file containing **the three screenshots you've taken**.
+
+Before you submit your project, please check your work against the project [rubric](rubic.md).
