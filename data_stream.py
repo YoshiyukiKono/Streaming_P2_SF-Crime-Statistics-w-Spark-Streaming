@@ -52,15 +52,19 @@ def run_spark_job(spark):
 
     # TODO select original_crime_type_name and disposition
     distinct_table = service_table\
-                 .select("original_crime_type_name", "disposition")#.distinct()
+                 .select("original_crime_type_name", "disposition").distinct()
 
     # count the number of original crime type
-    #agg_df = distinct_table.distinct().count()
+    agg_df = distinct_table\
+        .select("original_crime_type_name", "disposition")\
+        .groupBy("original_crime_type_name")\
+        .count()
 
     # TODO Q1. Submit a screen shot of a batch ingestion of the aggregation
     # TODO write output stream
     #query = agg_df \
     #query = service_table \
+    """
     query = distinct_table \
         .writeStream \
         .format("console") \
@@ -68,32 +72,58 @@ def run_spark_job(spark):
         .trigger(processingTime="20 seconds") \
         .option("checkpointLocation", "/tmp/checkpoint") \
         .start()
-
-    # TODO attach a ProgressReporter
     query.awaitTermination()
+    
+    query = agg_df \
+        .writeStream \
+        .trigger(processingTime="30 seconds") \
+        .outputMode('Update') \
+        .format('console') \
+        .option("truncate", "false") \
+        .start()
+    """
+    # https://knowledge.udacity.com/questions/72289
+    #.outputMode('Update')
+    """
+    query = agg_df \
+        .writeStream \
+        .format("console") \
+        .queryName("Micro Batch") \
+        .trigger(processingTime="60 seconds") \
+        .option("checkpointLocation", "/tmp/checkpoint") \
+        .outputMode('Update') \
+        .start()
+    """
+    # TODO attach a ProgressReporter
+    #query.awaitTermination()
+    
 
     # TODO get the right radio code json path
-    #radio_code_json_filepath = "radio_code.json"
-    #radio_code_df = spark.read.json(radio_code_json_filepath)
+    radio_code_json_filepath = "radio_code.json"
+    radio_code_df = spark.read.json(radio_code_json_filepath, multiLine=True).alias("radio_code")
+    radio_code_df.printSchema()
+
 
     # clean up your data so that the column names match on radio_code_df and agg_df
     # we will want to join on the disposition code
 
     # TODO rename disposition_code column to disposition
-    #radio_code_df = radio_code_df.withColumnRenamed("disposition_code", "disposition")
+    radio_code_df = radio_code_df.withColumnRenamed("disposition_code", "disposition")
 
     # TODO join on disposition column
-    #join_query = agg_df\
-    #    .join(radio_code_df, agg_df.disposition == radio_code_df.disposition, 'inner')\
-    #    .writeStream \
-    #    .format("console") \
-    #    .queryName("Micro Batch") \
-    #    .trigger(processingTime="20 seconds") \
-    #    .option("checkpointLocation", "/tmp/checkpoint") \
-    #    .start()
+    #join_query = distinct_table\
+    #    .join(radio_code_df, distinct_table.disposition == distinct_table.disposition, 'inner')\
+    join_query = distinct_table\
+        .join(radio_code_df, "disposition", 'left_outer')\
+        .writeStream \
+        .format("console") \
+        .queryName("Join Query") \
+        .trigger(processingTime="60 seconds") \
+        .option("checkpointLocation", "/tmp/checkpoint") \
+        .outputMode('Update') \
+        .start()
 
-    #join_query.awaitTermination()
-
+    join_query.awaitTermination()
 
 if __name__ == "__main__":
     logger = logging.getLogger(__name__)
