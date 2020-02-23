@@ -6,7 +6,8 @@ import pyspark.sql.functions as psf
 
 
 # TODO Create a schema for incoming resources
-schema = StructType([
+schema = StructType([StructField("status", StringType(), True),
+                     StructField("timestamp", TimestampType(), True)
 ])
 
 def run_spark_job(spark):
@@ -30,7 +31,7 @@ def run_spark_job(spark):
 
     # TODO extract the correct column from the kafka input resources
     # Take only value and convert it to String
-    kafka_df = df.selectExpr("")
+    kafka_df = df.selectExpr("CAST(value AS STRING)")
 
     service_table = kafka_df\
         .select(psf.from_json(psf.col('value'), schema).alias("DF"))\
