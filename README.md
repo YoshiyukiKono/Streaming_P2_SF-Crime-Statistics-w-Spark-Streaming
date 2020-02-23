@@ -75,8 +75,8 @@ bin/kafka-server-start.sh config/server.properties
 #### Workspace Environment
 - Modify the zookeeper.properties and producer.properties given to suit your topic and port number of your choice. Start up these servers in the terminal using the commands:
 ```
-/usr/bin/zookeeper-server-start zookeeper.properties
-/usr/bin/kafka-server-start producer.properties
+/usr/bin/zookeeper-server-start config/zookeeper.properties
+/usr/bin/kafka-server-start config/server.properties
 ```
 
 - You’ll need to open up two terminal tabs to execute each command.
