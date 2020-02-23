@@ -24,3 +24,7 @@ The screenshot of the progress reporter demonstrates that the student correctly 
 - Implement FFT (Fast Fourier transform) algorithm to generate the frequency of SF service calls.
 - Try to scale out and figure out the combinations on your local machine number of offsets/partitions. Can you make 2000 offsets per trigger? How can you tell you’re ingesting <offsets> per trigger? What tools can you use?
 - Generate dynamic charts/images per batch.
+  
+  #### Reference
+  
+  - [Pythonで高速フーリエ変換（FFT）の練習-1 簡単な信号でFFTを体験してみよう](https://momonoki2017.blogspot.com/2018/03/pythonfft-1-fft.html)
