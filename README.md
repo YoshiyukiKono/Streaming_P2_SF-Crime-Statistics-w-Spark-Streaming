@@ -88,6 +88,10 @@ bin/kafka-server-start.sh config/server.properties
 ## Step 1
 - The first step is to build a simple Kafka server.
 - Complete the code for the server in producer_server.py and kafka_server.py.
+
+```
+python kafka_server.py
+```
 ### Local Environment
 - To see if you correctly implemented the server, use the command below to see your output.
 ```
