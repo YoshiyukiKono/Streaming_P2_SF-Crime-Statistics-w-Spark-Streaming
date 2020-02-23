@@ -85,6 +85,12 @@ bin/kafka-server-start.sh config/server.properties
 
 - In the terminal, to install other packages that you think are necessary to complete the project, use conda install <package_name>. You may need to reinstall these packages every time you re-open the workspace, or anytime after you've refreshed, or woken up, or reset data, or used the "Get New Content" button in this workspace.
 
+##### Logging
+A customized `log4j.properties` is included in this repository. It is needed to copy to the appropriate folder.
+```
+cp log4j.properties /opt/spark-2.3.4-bin-hadoop2.7/conf/
+```
+
 ## Step 1
 - The first step is to build a simple Kafka server.
 - Complete the code for the server in producer_server.py and kafka_server.py.
