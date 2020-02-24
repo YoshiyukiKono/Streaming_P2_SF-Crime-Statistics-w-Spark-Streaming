@@ -123,7 +123,12 @@ Do a spark-submit using this command:
 spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.4 --master local[*] --conf spark.ui.port=3000 data_stream.py
 ```
 - Take a screenshot of your progress reporter after executing a Spark job. **You will need to include this screenshot as part of your project submission.**
+
+![progress-reporter](./images/progress-reporter.png)
+
 - Take a screenshot of the Spark Streaming UI as the streaming continues. **You will need to include this screenshot as part of your project submission.**
+
+![Spark-UI-screenshot](./images/Spark-UI-screenshot.png)
 
 ## Step 3
 Write the answers to these questions in the README.md doc of your GitHub repo:
