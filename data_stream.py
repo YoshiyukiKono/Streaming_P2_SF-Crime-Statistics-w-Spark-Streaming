@@ -4,6 +4,15 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import *
 import pyspark.sql.functions as psf
 
+#    Spark
+from pyspark import SparkContext
+#    Spark Streaming
+from pyspark.streaming import StreamingContext
+
+from pyspark.sql.functions import col
+from pyspark.sql.functions import udf
+
+import datetime
 
 # TODO Create a schema for incoming resources
 schema = StructType([
@@ -23,11 +32,19 @@ schema = StructType([
     StructField("common_location", StringType(), True)
 ])
 
+#https://stackoverflow.com/questions/48305443/typeerror-column-object-is-not-callable-using-withcolumn/50805490
+#@udf
+def to_yyyymmddhh(timestamp):
+    #print(f"TIMESTAMP:{type(timestamp)}")
+    #converted_time = datetime.datetime.strptime(timestamp, "%Y%m%d%H%M%S")
+    return timestamp.strftime("%Y/%m/%d %H")
+    #return timestamp
+
+to_yyyymmddhh_udf = udf(to_yyyymmddhh)#, TimestampType())
+
 def run_spark_job(spark):
 
     # TODO Create Spark Configuration
-    # Create Spark configurations with max offset of 200 per trigger
-    # set up correct bootstrap server and port
     df = spark \
         .readStream \
         .format("kafka") \
@@ -49,15 +66,20 @@ def run_spark_job(spark):
     service_table = kafka_df\
         .select(psf.from_json(psf.col('value'), schema).alias("DF"))\
         .select("DF.*").alias("service")
+    
 
     # TODO select original_crime_type_name and disposition
     distinct_table = service_table\
-                 .select("original_crime_type_name", "disposition").distinct()
+                 .select("original_crime_type_name", "disposition", "call_date_time")
 
     # count the number of original crime type
+    #
+    #agg_df = service_table\
     agg_df = distinct_table\
-        .select("original_crime_type_name", "disposition")\
-        .groupBy("original_crime_type_name")\
+        .select("original_crime_type_name", "disposition", "call_date_time")\
+        .withColumn('call_date_hour', to_yyyymmddhh_udf(service_table.call_date_time))\
+        .withWatermark("call_date_time", '60 minutes')\
+        .groupBy("original_crime_type_name", "disposition", 'call_date_hour')\
         .count()
 
     # TODO Q1. Submit a screen shot of a batch ingestion of the aggregation
@@ -84,7 +106,7 @@ def run_spark_job(spark):
     """
     # https://knowledge.udacity.com/questions/72289
     #.outputMode('Update')
-    """
+    """"
     query = agg_df \
         .writeStream \
         .format("console") \
@@ -96,6 +118,7 @@ def run_spark_job(spark):
     """
     # TODO attach a ProgressReporter
     #query.awaitTermination()
+
     
 
     # TODO get the right radio code json path
@@ -113,14 +136,37 @@ def run_spark_job(spark):
     # TODO join on disposition column
     #join_query = distinct_table\
     #    .join(radio_code_df, distinct_table.disposition == distinct_table.disposition, 'inner')\
+    # Confirmed to work
+    """
     join_query = distinct_table\
         .join(radio_code_df, "disposition", 'left_outer')\
         .writeStream \
         .format("console") \
         .queryName("Join Query") \
-        .trigger(processingTime="60 seconds") \
+        .trigger(processingTime="10 seconds") \
         .option("checkpointLocation", "/tmp/checkpoint") \
-        .outputMode('Update') \
+        .outputMode('append') \
+        .start()
+    """
+    # Confirmed to work
+    
+
+    #join_distinct_query = distinct_table\
+    #    .join(radio_code_df, "disposition", 'left_outer')
+
+    join_query = distinct_table\
+        .join(radio_code_df, "disposition", 'left_outer')\
+        .select("original_crime_type_name", "disposition","description", "call_date_time")\
+        .withColumn('call_date_hour', to_yyyymmddhh_udf(service_table.call_date_time))\
+        .withWatermark("call_date_time", '60 minutes')\
+        .groupBy("original_crime_type_name", "disposition","description",'call_date_hour')\
+        .count()\
+        .writeStream \
+        .format("console") \
+        .queryName("Join Query") \
+        .trigger(processingTime="10 seconds") \
+        .option("checkpointLocation", "/tmp/checkpoint") \
+        .outputMode('update') \
         .start()
 
     join_query.awaitTermination()
@@ -135,8 +181,21 @@ if __name__ == "__main__":
         .appName("KafkaSparkStructuredStreaming") \
         .getOrCreate()
 
+    """
+    sc = SparkContext(appName="KafkaSparkStructuredStreaming")
+    ssc = StreamingContext(sc, 1)
+    spark = SparkSession \
+        .builder \
+        .master("local[*]") \
+        .config(conf=ssc)\
+        .getOrCreate()
+    """
     logger.info("Spark started")
+    spark.sparkContext.setLogLevel("WARN")
+    logging.getLogger("log4j.logger.org.apache.spark.sql.execution.streaming.MicroBatchExecution")\
+        .setLevel(logging.INFO)
 
     run_spark_job(spark)
+    #run_spark_job(ssc)
 
     spark.stop()
