@@ -17,7 +17,8 @@ class ProducerServer(KafkaProducer):
         for v in json_load:
             message = self.dict_to_binary(v)
             print(f"message: {message}")
-            self.send(self.topic, v)
+            #self.send(self.topic, v)
+            self.send(self.topic, message)
             time.sleep(1)
         #with open(self.input_file) as f:
         #    for line in f:

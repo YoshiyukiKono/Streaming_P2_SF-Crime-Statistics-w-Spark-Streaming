@@ -180,7 +180,15 @@ if __name__ == "__main__":
         .master("local[*]") \
         .appName("KafkaSparkStructuredStreaming") \
         .getOrCreate()
-
+    """   
+    spark = SparkSession \
+        .builder \
+        .config("spark.streaming.blockInterval","50ms") \
+        .config("spark.streaming.receiver.maxRate", "0") \
+        .master("local[*]") \
+        .appName("KafkaSparkStructuredStreaming") \
+        .getOrCreate()
+    """
     """
     sc = SparkContext(appName="KafkaSparkStructuredStreaming")
     ssc = StreamingContext(sc, 1)
