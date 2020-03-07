@@ -142,6 +142,8 @@ I checked available parameters with the Apache Documents below:
 
 http://spark.apache.org/docs/latest/configuration.html#spark-streaming
 
+From the view of "the throughput and latency of the data", the properties in bold would affect them.
+
 |Property Name|Default|Meaning|
 |:---|:---|:---|
 |spark.streaming.backpressure.enabled|false|	Enables or disables Spark Streaming's internal backpressure mechanism (since 1.5). This enables the Spark Streaming to control the receiving rate based on the current batch scheduling delays and processing times so that the system receives only as fast as the system can process. Internally, this dynamically sets the maximum receiving rate of receivers. This rate is upper bounded by the values spark.streaming.receiver.maxRate and spark.streaming.kafka.maxRatePerPartition if they are set (see below).|
@@ -160,8 +162,80 @@ http://spark.apache.org/docs/latest/configuration.html#spark-streaming
 
 
 
-
 **2. What were the 2-3 most efficient SparkSession property key/value pairs? Through testing multiple variations on values, how can you tell these were the most optimal?**
+
+I tested two pairs below:
+
+- Default settings
+|Property Name|Value|
+|:---|:---|
+|**spark.streaming.blockInterval**|200ms|
+|**spark.streaming.receiver.maxRate**|not set|
+
+- Custom settings
+|Property Name|Value|
+|:---|:---|
+|**spark.streaming.blockInterval**|50ms (minimum recommendation)|
+|**spark.streaming.receiver.maxRate**|0 (no limit on the rate)|
+
+Then, I compared the output below:
+
+```
+spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.4 --master loca*] --conf spark.ui.port=3000 data_stream.py > stream_log_default.txt 2>&1
+```
+
+- Default settings
+```
+root@665057b9b290:/home/workspace# grep processedRowsPerSecond stream_log_default.txtoot@665057b9b290:/home/workspace# grep processedRowsPerSecond stream_log_default.txt 
+  "processedRowsPerSecond" : 0.6750168754218855,
+    "processedRowsPerSecond" : 0.6750168754218855
+  "processedRowsPerSecond" : 1.0473397570171763,
+    "processedRowsPerSecond" : 1.0473397570171763
+  "processedRowsPerSecond" : 1.621329490181949,
+    "processedRowsPerSecond" : 1.621329490181949
+  "processedRowsPerSecond" : 1.7647058823529413,
+    "processedRowsPerSecond" : 1.7647058823529413
+  "processedRowsPerSecond" : 2.0270270270270268,
+    "processedRowsPerSecond" : 2.0270270270270268
+  "processedRowsPerSecond" : 1.9317450096587252,
+    "processedRowsPerSecond" : 1.9317450096587252
+  "processedRowsPerSecond" : 1.9120458891013385,
+    "processedRowsPerSecond" : 1.9120458891013385
+  "processedRowsPerSecond" : 1.6974726518294985,
+    "processedRowsPerSecond" : 1.6974726518294985
+  "processedRowsPerSecond" : 2.0288548241659154,
+    "processedRowsPerSecond" : 2.0288548241659154
+  "processedRowsPerSecond" : 2.1398002853067046,
+    "processedRowsPerSecond" : 2.1398002853067046
+```
+
+
+- Custom settings
+```
+root@665057b9b290:/home/workspace# grep processedRowsPerSecond stream_log_custome.txt 
+  "processedRowsPerSecond" : 0.751371252535878,
+    "processedRowsPerSecond" : 0.751371252535878
+  "processedRowsPerSecond" : 0.9268795056642636,
+    "processedRowsPerSecond" : 0.9268795056642636
+  "processedRowsPerSecond" : 1.5600624024960998,
+    "processedRowsPerSecond" : 1.5600624024960998
+  "processedRowsPerSecond" : 1.6958733747880157,
+    "processedRowsPerSecond" : 1.6958733747880157
+  "processedRowsPerSecond" : 1.9624945486262537,
+    "processedRowsPerSecond" : 1.9624945486262537
+  "processedRowsPerSecond" : 1.880484747179273,
+    "processedRowsPerSecond" : 1.880484747179273
+  "processedRowsPerSecond" : 1.8556701030927836,
+    "processedRowsPerSecond" : 1.8556701030927836
+  "processedRowsPerSecond" : 2.1754894851341553,
+    "processedRowsPerSecond" : 2.1754894851341553
+  "processedRowsPerSecond" : 2.065167508031207,
+    "processedRowsPerSecond" : 2.065167508031207
+  "processedRowsPerSecond" : 2.2533800701051576,
+    "processedRowsPerSecond" : 2.2533800701051576
+```
+I observed the custom settings resulted in better performance in the first twenty attempts although it is not significant.
+
 
 ## Project Submission
 You will submit a link to your GitHub repo, with the files you've created: producer_server.py, kafka_server.py, data_stream.py, and consumer_server.py. The README.md doc in your GitHub repo should contain **your responses to the two questions from Step 3**.
