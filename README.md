@@ -130,10 +130,14 @@ spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.4 --maste
 
 ![Spark-UI-screenshot](./images/Spark-UI-screenshot.png)
 
+*Note:* I couldn't get "Streaming" Tab on the UI and found a comment at Student Hub, which says that it was because the Spark version of the workspace was different from the version of Lesson 5 'Structured Streaming on Spark UI'.
+So, I put the above screenshot of Spark UI. 
+
 ## Step 3
 Write the answers to these questions in the README.md doc of your GitHub repo:
 
 **1. How did changing values on the SparkSession property parameters affect the throughput and latency of the data?**
+
 
 **2. What were the 2-3 most efficient SparkSession property key/value pairs? Through testing multiple variations on values, how can you tell these were the most optimal?**
 
